@@ -34,16 +34,6 @@ window.onload = function() {
       '<td><button onclick="sendPassword()">Accept</button></td>';
   elemTable.insertBefore(accept, elemTable.firstChild);
 
-  // Add a toggle settings and help link at the top right.
-  var links = document.createElement('div');
-  links.innerHTML =
-      '<a id="toggleSettings" href="#">hide settings</a> ' +
-      '<a href="help.html" target="pwmakerhelp">help</a> ';
-  links.style.float = 'right';
-  links.style.width = '20em';
-  document.body.insertBefore(links, document.body.firstChild);
-  document.getElementById("toggleSettings").onclick = toggleSettings;
-
   // Add a Password Verifier.
   var pwVerify = document.createElement('tr');
   pwVerify.innerHTML =
@@ -61,7 +51,7 @@ window.onload = function() {
   toggle.checked = localStorage['enablePasswordVerify'] == "true";
   toggle.onchange = onPasswordVerifyToggle;
 
-  window.passwordMode = window.passwordMode || true;
+  window.passwordMode = window.passwordMode || false;
   window.showSettings = !window.passwordMode;
   if (window.showSettings) {
     // Settings mode: hide password fill stuff.
@@ -136,14 +126,6 @@ function sendPassword() {
   window.close();
 }
 
-function toggleSettings() {
-  showSettings = !showSettings;
-  updateSettings();
-
-  // Fit the window to the contents, plus padding.
-  window.resizeBy(0, document.body.clientHeight - window.innerHeight + 20);
-}
-
 // Shows or hides the "settings" rows based on showSettings.
 function updateSettings() {
   var elemTable = document.getElementsByTagName('table')[0];
@@ -158,10 +140,6 @@ function updateSettings() {
 
     tr.style.display = showSettings ? 'table-row' : 'none';
   }
-
-  // Change link text.
-  var str = showSettings ? "hide" : "show";
-  document.getElementById('toggleSettings').innerText = str + " settings";
 }
 
 // Regenerates the password and verifier code.
