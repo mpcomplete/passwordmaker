@@ -29,34 +29,38 @@ window.onload = function() {
   // Add a button to actually send the password to the page.
   var accept = document.createElement('tr');
   accept.innerHTML =
-     '<td>Fill in Password</td>' +
-     '<td><button onclick="sendPassword()">Accept</button></td>';
+      '<td>Fill in Password</td>' +
+      '<td><button onclick="sendPassword()">Accept</button></td>';
   elemTable.insertBefore(accept, elemTable.firstChild);
 
   // Add a toggle settings and help link at the top right.
   var links = document.createElement('div');
   links.innerHTML =
-     '<a id="toggleSettings" href="javascript:toggleSettings()">' +
-     'hide settings</a> ' +
-     '<a href="help.html" target="pwmakerhelp">help</a> ';
+      '<a id="toggleSettings" href="#">hide settings</a> ' +
+      '<a href="help.html" target="pwmakerhelp">help</a> ';
   links.style.float = 'right';
   links.style.width = '20em';
   document.body.insertBefore(links, document.body.firstChild);
+  document.getElementById("toggleSettings").onclick = toggleSettings;
 
   // Add a Password Verifier.
   var pwVerify = document.createElement('tr');
   pwVerify.innerHTML =
-     '<td><input type="checkbox" id="passwordVerifyToggle"' +
-     ' onchange="onPasswordVerifyToggle();" />Manual Password Verifier</input></td>' +
-     '<td><div id="passwordVerify"></div></td>';
-  pwVerify.title = 'A 3 letter code that will always be the same for a given master' +
-     ' password. Use this to quickly check that you typed your password correctly.';
+      '<td><input type="checkbox" id="passwordVerifyToggle"/><label' +
+      ' for="passwordVerifyToggle">Manual Password Verifier</label></td>' +
+      '<td><div id="passwordVerify"></div></td>';
+  pwVerify.title =
+      'A 3 letter code that will always be the same for a given master' +
+      ' password. Use this to quickly check that you typed your password' +
+      ' correctly.';
   var saveMaster = document.getElementById('saveMasterLB');
   saveMaster = saveMaster.parentNode.parentNode;
   elemTable.insertBefore(pwVerify, saveMaster);
   var toggle = document.getElementById('passwordVerifyToggle');
   toggle.checked = localStorage['enablePasswordVerify'] == "true";
+  toggle.onchange = onPasswordVerifyToggle;
 
+  window.showSettings = window.showSettings || true;
   if (window.showSettings) {
     // Settings mode: hide password fill stuff.
     accept.style.display = 'none';
@@ -66,6 +70,9 @@ window.onload = function() {
     updateSettings();
   }
 
+  updatePasswordVerify();
+  initChangeHandlers();
+
   document.body.style.visibility = 'visible';
   passwdMaster.focus();
 }
@@ -74,45 +81,52 @@ window.onunload = function() {
   chrome.extension.getBackgroundPage().saveSettings();
 }
 
-function addHandler(id, eventName, handler) {
-  document.getElementById(id)[eventName] = handler;
+function addHandler(id, handler) {
+  var elem = document.getElementById(id);
+  if (elem.type == "button") {
+    elem.onclick = handler;
+  } else {
+    elem.onchange = handler;
+    elem.onkeypress = handler;
+    elem.oninput = handler;
+  }
 }
 
-function foo() {
-  addHandler("profileLB", "onchange", loadProfile);
-  addHandler("preURL", "onchange", populateURL);
-  addHandler("passwdMaster", "onchange", preGeneratePassword);
-  addHandler("saveMasterBtn", "onchange", saveMaster);
+function initChangeHandlers() {
+  addHandler("profileLB", loadProfile);
+  addHandler("preURL", populateURL);
+//  addHandler("passwdMaster", preGeneratePassword);
+  addHandler("saveMasterLB", onSaveMasterLBChanged);
   addHandler("whereLeetLB", "onchange",
       function() { onWhereLeetLBChanged(); preGeneratePassword(); });
-  addHandler("leetLevelLB", "onchange", preGeneratePassword);
-  addHandler("hashAlgorithmLB", "onchange", preGeneratePassword);
-  addHandler("protocolCB", "onchange", populateURL);
-  addHandler("subdomainCB", "onchange", populateURL);
-  addHandler("domainCB", "onchange", populateURL);
-  addHandler("pathCB", "onchange", populateURL);
-  addHandler("passwdUrl", "onchange", preGeneratePassword);
-  addHandler("passwdLength", "onchange", function() {
-      if (/\D/.test(this.value)) this.value = "8";
-      preGeneratePassword();
+  addHandler("leetLevelLB", preGeneratePassword);
+  addHandler("hashAlgorithmLB", preGeneratePassword);
+  addHandler("protocolCB", populateURL);
+  addHandler("subdomainCB", populateURL);
+  addHandler("domainCB", populateURL);
+  addHandler("pathCB", populateURL);
+  addHandler("passwdUrl", preGeneratePassword);
+  addHandler("passwdLength", function() {
+    if (/\D/.test(this.value)) this.value = "8";
+    preGeneratePassword();
   });
-  addHandler("usernameTB", "onchange", preGeneratePassword);
-  addHandler("counter", "onchange", preGeneratePassword);
-  addHandler("charset", "onchange", preGeneratePassword);
-  addHandler("tipsBtn", "onchange", onClickTips);
-  addHandler("passwordPrefix", "onchange", preGeneratePassword);
-  addHandler("passwordSuffix", "onchange", preGeneratePassword);
-  addHandler("ifHidePasswd", "onchange", function() {
-      if (ifHidePasswd.checked) {
-	passwdGenerated.style.color = "#fff";
-      } else {
-        passwdGenerated.style.color = "#00f";
-      }
-      saveGlobalPrefs();
+  addHandler("usernameTB", preGeneratePassword);
+  addHandler("counter", preGeneratePassword);
+  addHandler("charset", preGeneratePassword);
+//  addHandler("tipsBtn", onClickTips);
+  addHandler("passwordPrefix", preGeneratePassword);
+  addHandler("passwordSuffix", preGeneratePassword);
+  addHandler("ifHidePasswd", function() {
+    if (ifHidePasswd.checked) {
+      passwdGenerated.style.color = "#fff";
+    } else {
+      passwdGenerated.style.color = "#00f";
+    }
+    saveGlobalPrefs();
   });
-  addHandler("saveProfileBtn", "onchange", saveProfile);
-  addHandler("loadProfileBtn", "onchange", loadProfile);
-  addHandler("deleteProfileBtn", "onchange", deleteProfile);
+  addHandler("saveProfileBtn", saveProfile);
+  addHandler("loadProfileBtn", loadProfile);
+  addHandler("deleteProfileBtn", deleteProfile);
 }
 
 // Sends our generated password up to the extension, who routes it to the
