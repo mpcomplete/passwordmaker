@@ -1,9 +1,3 @@
-<!--
-Copyright (c) 2009 Matt Perry. All rights reserved.
-Use of this source code is governed by the LGPL that can be found in the
-LICENSE file.
--->
-<script>
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   if (request.showDialog) {
     // A page is requesting a site password.
@@ -34,7 +28,14 @@ function openDialog(tab) {
   dialog.showSettings = false;
 }
 
-chrome.pageAction.onClicked.addListener(function(tab) {
+chrome.browserAction.onClicked.addListener(function(tab) {
   openDialog(tab);
 });
-</script>
+
+chrome.storage.sync.get("settings", function(value) {
+  document.cookie = value;
+});
+
+function saveSettings() {
+  chrome.storage.sync.set({"settings": document.cookie});
+}

@@ -70,6 +70,51 @@ window.onload = function() {
   passwdMaster.focus();
 }
 
+window.onunload = function() {
+  chrome.extension.getBackgroundPage().saveSettings();
+}
+
+function addHandler(id, eventName, handler) {
+  document.getElementById(id)[eventName] = handler;
+}
+
+function foo() {
+  addHandler("profileLB", "onchange", loadProfile);
+  addHandler("preURL", "onchange", populateURL);
+  addHandler("passwdMaster", "onchange", preGeneratePassword);
+  addHandler("saveMasterBtn", "onchange", saveMaster);
+  addHandler("whereLeetLB", "onchange",
+      function() { onWhereLeetLBChanged(); preGeneratePassword(); });
+  addHandler("leetLevelLB", "onchange", preGeneratePassword);
+  addHandler("hashAlgorithmLB", "onchange", preGeneratePassword);
+  addHandler("protocolCB", "onchange", populateURL);
+  addHandler("subdomainCB", "onchange", populateURL);
+  addHandler("domainCB", "onchange", populateURL);
+  addHandler("pathCB", "onchange", populateURL);
+  addHandler("passwdUrl", "onchange", preGeneratePassword);
+  addHandler("passwdLength", "onchange", function() {
+      if (/\D/.test(this.value)) this.value = "8";
+      preGeneratePassword();
+  });
+  addHandler("usernameTB", "onchange", preGeneratePassword);
+  addHandler("counter", "onchange", preGeneratePassword);
+  addHandler("charset", "onchange", preGeneratePassword);
+  addHandler("tipsBtn", "onchange", onClickTips);
+  addHandler("passwordPrefix", "onchange", preGeneratePassword);
+  addHandler("passwordSuffix", "onchange", preGeneratePassword);
+  addHandler("ifHidePasswd", "onchange", function() {
+      if (ifHidePasswd.checked) {
+	passwdGenerated.style.color = "#fff";
+      } else {
+        passwdGenerated.style.color = "#00f";
+      }
+      saveGlobalPrefs();
+  });
+  addHandler("saveProfileBtn", "onchange", saveProfile);
+  addHandler("loadProfileBtn", "onchange", loadProfile);
+  addHandler("deleteProfileBtn", "onchange", deleteProfile);
+}
+
 // Sends our generated password up to the extension, who routes it to the
 // page.
 function sendPassword() {

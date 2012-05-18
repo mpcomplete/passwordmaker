@@ -1,18 +1,21 @@
 {
-   "background_page": "background.html",
+   "name": "PasswordMaker",
+   "version": "0.2.0",
+   "description": "Generates a unique password for every site from a single master password.",
+   "background": {
+     "scripts": ["background.js"],
+     "persistent": false
+   },
+   "REMOVE.content_scripts": true,
    "content_scripts": [ {
       "js": [ "form-filler.js" ],
       "matches": [ "http://*/*", "https://*/*" ]
    } ],
-   "description": "Generates a unique password for every site from a single master password.",
-   "format_version": 1,
-   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC15t4LEKLuqKp1QL0Eg5P6zvtLyJOHoUO+hCbpXoPXWMCUCTc2o/JtTHgG2HEgfITHjxa2JFccLeREgATmb8ltUuhmT5Xi74KMNVCSMwCyTJIEjoVBBtqdb1IlQP4EVJNZ3q8mYajf0f8qDCD6Rt5359GR/1f61FCKpsZDQwQSbQIDAQAB",
-   "name": "PasswordMaker",
-   "page_actions": [ {
+   "browser_action": {
       "default_icon": "favicon.ico",
-      "default_title": "Fill Password"
-   } ],
-   "permissions": [ "tabs" ],
-   "update_url": "http://clients2.google.com/service/update2/crx",
-   "version": "0.1.0.7"
+      "default_title": "PasswordMaker"
+   },
+   "permissions": [ "tabs", "storage" ],
+   "options_page": "passwordmaker.html",
+   "manifest_version": 2
 }
