@@ -15,9 +15,8 @@ window.onload = function() {
 
   function pwchanged(e) {
     updatePassword();
-    if (e && e.charCode == 13) {
+    if (e && e.charCode == 13)
       sendPassword();
-    }
   }
   passwdMaster.onkeypress = pwchanged;
   passwdMaster.oninput = pwchanged;
@@ -204,6 +203,5 @@ function updatePasswordVerify() {
 // Turns the Password Verifier on or off based on the checkbox status.
 function onPasswordVerifyToggle() {
   updatePasswordVerify();
-  var toggle = document.getElementById('passwordVerifyToggle');
-  localStorage['enablePasswordVerify'] = toggle.checked;
+  localStorage['enablePasswordVerify'] = this.checked;
 }
