@@ -4,13 +4,13 @@
 
 var hasPasswordField = false;
 
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-  fillPasswords(request.password);
+chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+  fillPasswords(msg.password);
 });
 
 function getPassword() {
-  chrome.extension.sendRequest({showDialog: true,
-                                 hasPasswordField: hasPasswordField});
+  chrome.extension.sendMessage({showDialog: true,
+                                hasPasswordField: hasPasswordField});
 }
 
 function fillPasswords(password) {
@@ -34,7 +34,7 @@ function findPasswordFields() {
   forEachPasswordField(function(form) {hasPasswordField = true;});
 
   if (hasPasswordField) {
-    chrome.extension.sendRequest({showPageAction: true});
+    chrome.extension.sendMessage({showPageAction: true});
   }
 }
 

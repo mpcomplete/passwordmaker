@@ -5,6 +5,9 @@
 // Custom hacks to tweak the javascript edition of PasswordMaker to work as a
 // Chrome extension.
 
+// Ensure the background page is running.
+chrome.runtime.getBackgroundPage(function() {});
+
 window.onload = function() {
   if (typeof(preUrl) == "undefined")
     init();
@@ -58,7 +61,8 @@ window.onload = function() {
   toggle.checked = localStorage['enablePasswordVerify'] == "true";
   toggle.onchange = onPasswordVerifyToggle;
 
-  window.showSettings = window.showSettings || true;
+  window.passwordMode = window.passwordMode || true;
+  window.showSettings = !window.passwordMode;
   if (window.showSettings) {
     // Settings mode: hide password fill stuff.
     accept.style.display = 'none';
@@ -128,7 +132,7 @@ function initChangeHandlers() {
 // Sends our generated password up to the extension, who routes it to the
 // page.
 function sendPassword() {
-  chrome.tabs.sendRequest(contentTab.id, {password: passwdGenerated.value});
+  chrome.tabs.sendMessage(contentTab.id, {password: passwdGenerated.value});
   window.close();
 }
 
