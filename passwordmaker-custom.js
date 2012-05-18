@@ -14,8 +14,7 @@ window.onload = function() {
   populateURL();
 
   function pwchanged(e) {
-    preGeneratePassword();
-    updatePasswordVerify();
+    updatePassword();
     if (e && e.charCode == 13) {
       sendPassword();
     }
@@ -95,27 +94,25 @@ function addHandler(id, handler) {
 function initChangeHandlers() {
   addHandler("profileLB", loadProfile);
   addHandler("preURL", populateURL);
-//  addHandler("passwdMaster", preGeneratePassword);
   addHandler("saveMasterLB", onSaveMasterLBChanged);
   addHandler("whereLeetLB", "onchange",
-      function() { onWhereLeetLBChanged(); preGeneratePassword(); });
-  addHandler("leetLevelLB", preGeneratePassword);
-  addHandler("hashAlgorithmLB", preGeneratePassword);
+      function() { onWhereLeetLBChanged(); updatePassword(); });
+  addHandler("leetLevelLB", updatePassword);
+  addHandler("hashAlgorithmLB", updatePassword);
   addHandler("protocolCB", populateURL);
   addHandler("subdomainCB", populateURL);
   addHandler("domainCB", populateURL);
   addHandler("pathCB", populateURL);
-  addHandler("passwdUrl", preGeneratePassword);
+  addHandler("passwdUrl", updatePassword);
   addHandler("passwdLength", function() {
     if (/\D/.test(this.value)) this.value = "8";
-    preGeneratePassword();
+    updatePassword();
   });
-  addHandler("usernameTB", preGeneratePassword);
-  addHandler("counter", preGeneratePassword);
-  addHandler("charset", preGeneratePassword);
-//  addHandler("tipsBtn", onClickTips);
-  addHandler("passwordPrefix", preGeneratePassword);
-  addHandler("passwordSuffix", preGeneratePassword);
+  addHandler("usernameTB", updatePassword);
+  addHandler("counter", updatePassword);
+  addHandler("charset", updatePassword);
+  addHandler("passwordPrefix", updatePassword);
+  addHandler("passwordSuffix", updatePassword);
   addHandler("ifHidePasswd", function() {
     if (ifHidePasswd.checked) {
       passwdGenerated.style.color = "#fff";
@@ -164,6 +161,12 @@ function updateSettings() {
   document.getElementById('toggleSettings').innerText = str + " settings";
 }
 
+// Regenerates the password and verifier code.
+function updatePassword() {
+  preGeneratePassword();
+  updatePasswordVerify();
+}
+
 // Updates the Password Verifier code based on the master password.
 function updatePasswordVerify() {
   var toggle = document.getElementById('passwordVerifyToggle');
@@ -172,13 +175,28 @@ function updatePasswordVerify() {
     pwVerify.innerText = "";
     return;
   }
+
+  // Generate the master password with an empty URL first, then feed the
+  // result through the hash function again. This way, we take all the
+  // settings into account, while still generating a usable 3-letter code.
+  var passwdUrlSaved = passwdUrl.value;
+  var passwdLengthSaved = passwdLength.value;
+  var passwdGeneratedSaved = passwdGenerated.value;
+
+  passwdUrl.value = "";
+  preGeneratePassword();
+  var result = passwdGenerated.value;
+  passwdUrl.value = passwdUrlSaved;
+  passwdLength.value = passwdLengthSaved;
+  passwdGenerated.value = passwdGeneratedSaved;
+
   var hashAlgorithm = "sha256";
   var whereToUseL33t = "none";
   var l33tLevel = "off";
   var charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   var length = 3;
   var result = generatepassword(
-       hashAlgorithm, passwdMaster.value, "",
+       hashAlgorithm, result, "",
        whereToUseL33t, l33tLevel, length, charset, "", "");
   pwVerify.innerText = result.substr(0, length);
 }
