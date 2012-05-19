@@ -8,7 +8,8 @@
 // Ensure the background page is running.
 chrome.runtime.getBackgroundPage(function() {});
 
-window.onload = function() {
+//window.onload = function() {
+{
   if (typeof(preUrl) == "undefined")
     init();
 
@@ -51,14 +52,11 @@ window.onload = function() {
   toggle.checked = localStorage['enablePasswordVerify'] == "true";
   toggle.onchange = onPasswordVerifyToggle;
 
-  window.passwordMode = window.passwordMode || false;
-  window.showSettings = !window.passwordMode;
+  window.showSettings = location.search.indexOf("options=true") >= 0;
   if (window.showSettings) {
     // Settings mode: hide password fill stuff.
     accept.style.display = 'none';
     elemTable.childNodes[3].style.display = 'none';  // input URL
-  } else {
-    // Password fill mode: Hide settings options.
     updateSettings();
   }
 
@@ -128,17 +126,9 @@ function sendPassword() {
 
 // Shows or hides the "settings" rows based on showSettings.
 function updateSettings() {
-  var elemTable = document.getElementsByTagName('table')[0];
-  elemTable = elemTable.getElementsByTagName('tbody')[0];
-
-  // Hardcoded silliness to pick out the rows pertaining to settings.
-  var numRows = 0;
-  for (var i in elemTable.childNodes) {
-    var tr = elemTable.childNodes[i];
-    if (tr.nodeName != 'TR' || ++numRows < 7 || numRows == 18)
-      continue;
-
-    tr.style.display = showSettings ? 'table-row' : 'none';
+  var options = document.getElementsByClassName("options");
+  for (var i = 0; i < options.length; ++i) {
+    options[i].style.display = showSettings ? 'table-row' : 'none';
   }
 }
 

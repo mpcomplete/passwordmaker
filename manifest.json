@@ -13,9 +13,10 @@
    } ],
    "browser_action": {
       "default_icon": "favicon.ico",
-      "default_title": "PasswordMaker"
+      "default_title": "PasswordMaker",
+      "default_popup": "passwordmaker.html?options=false"
    },
    "permissions": [ "tabs", "storage" ],
-   "options_page": "passwordmaker.html",
+   "options_page": "passwordmaker.html?options=true",
    "manifest_version": 2
 }
