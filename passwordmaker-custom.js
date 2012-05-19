@@ -7,7 +7,6 @@
 
 // Load saved settings before anything else.
 chrome.storage.sync.get(null, function(storage) {
-  console.log("got cookie: " + storage.cookie);
   if (storage.cookie)
     document.cookie = storage.cookie;
   enablePasswordVerify = storage.enablePasswordVerify;
@@ -84,21 +83,22 @@ window.onunload = function() {
     "cookie": document.cookie,
     "enablePasswordVerify": enablePasswordVerify
   });
-  console.log("saving cookie: " + document.cookie);
 }
 
-function addHandler(id, handler) {
-  var elem = document.getElementById(id);
-  if (elem.type == "button") {
-    elem.onclick = handler;
-  } else {
-    elem.onchange = handler;
-    elem.onkeypress = handler;
-    elem.oninput = handler;
-  }
-}
-
+// Sets up all the onchange event handlers for the form elements. This
+// is needed because CSP has us on lockdown.
 function initChangeHandlers() {
+  function addHandler(id, handler) {
+    var elem = document.getElementById(id);
+    if (elem.type == "button") {
+      elem.onclick = handler;
+    } else {
+      elem.onchange = handler;
+      elem.onkeypress = handler;
+      elem.oninput = handler;
+    }
+  }
+
   addHandler("profileLB", loadProfile);
   addHandler("preURL", populateURL);
   addHandler("passwdMaster", function(e) {
@@ -138,11 +138,14 @@ function initChangeHandlers() {
   addHandler("deleteProfileBtn", deleteProfile);
 }
 
-// Sends our generated password up to the extension, who routes it to the
-// page.
+// Sends our generated password down to the current page.
 function sendPassword() {
-  chrome.tabs.sendMessage(contentTab.id, {password: passwdGenerated.value});
-  window.close();
+  chrome.tabs.executeScript(contentTab.id,
+      {file: "form-filler.js", allFrames: true},
+      function() {
+    chrome.tabs.sendMessage(contentTab.id, {password: passwdGenerated.value});
+    window.close();
+  });
 }
 
 // Shows the options rows.
