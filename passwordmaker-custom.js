@@ -5,25 +5,26 @@
 // Custom hacks to tweak the javascript edition of PasswordMaker to work as a
 // Chrome extension.
 
-// Ensure the background page is running.
-chrome.runtime.getBackgroundPage(function() {});
+// Load saved settings before anything else.
+chrome.storage.sync.get(null, function(storage) {
+  console.log("got cookie: " + storage.cookie);
+  if (storage.cookie)
+    document.cookie = storage.cookie;
+  enablePasswordVerify = storage.enablePasswordVerify;
+  initCustom();
+});
 
-//window.onload = function() {
-{
-  if (typeof(preUrl) == "undefined")
-    init();
+function initCustom() {
+  init();
 
-  // Get the site's URL from the query param, and fill in the input field.
-  preUrl.value = window.contentTab ? window.contentTab.url : '';
-  populateURL();
-
-  function pwchanged(e) {
-    updatePassword();
-    if (e && e.charCode == 13)
-      sendPassword();
-  }
-  passwdMaster.onkeypress = pwchanged;
-  passwdMaster.oninput = pwchanged;
+  // Get the site's URL and fill in the input field.
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs && tabs[0]) {
+      window.contentTab = tabs[0];
+      preUrl.value = window.contentTab ? window.contentTab.url : '';
+      populateURL();
+    }
+  });
 
   var elemTable = document.getElementsByTagName('table')[0];
   elemTable = elemTable.getElementsByTagName('tbody')[0];
@@ -49,15 +50,18 @@ chrome.runtime.getBackgroundPage(function() {});
   saveMaster = saveMaster.parentNode.parentNode;
   elemTable.insertBefore(pwVerify, saveMaster);
   var toggle = document.getElementById('passwordVerifyToggle');
-  toggle.checked = localStorage['enablePasswordVerify'] == "true";
-  toggle.onchange = onPasswordVerifyToggle;
+  toggle.checked = !!enablePasswordVerify;
+  toggle.onchange = function() {
+    updatePasswordVerify();
+    enablePasswordVerify = toggle.checked;
+  };
 
-  window.showSettings = location.search.indexOf("options=true") >= 0;
-  if (window.showSettings) {
-    // Settings mode: hide password fill stuff.
+  var isOptions = location.search.indexOf("options=true") >= 0;
+  if (isOptions) {
+    // Options mode: hide password fill stuff.
     accept.style.display = 'none';
     elemTable.childNodes[3].style.display = 'none';  // input URL
-    updateSettings();
+    showOptions();
   }
 
   updatePasswordVerify();
@@ -67,8 +71,18 @@ chrome.runtime.getBackgroundPage(function() {});
   passwdMaster.focus();
 }
 
+window.onload = function() {
+  // For some reason the popup won't focus the master password immediately.
+  // Wait 100ms instead.
+  setTimeout(function() { passwdMaster.focus(); }, 100);
+}
+
 window.onunload = function() {
-  chrome.extension.getBackgroundPage().saveSettings();
+  chrome.storage.sync.set({
+    "cookie": document.cookie,
+    "enablePasswordVerify": enablePasswordVerify
+  });
+  console.log("saving cookie: " + document.cookie);
 }
 
 function addHandler(id, handler) {
@@ -85,6 +99,11 @@ function addHandler(id, handler) {
 function initChangeHandlers() {
   addHandler("profileLB", loadProfile);
   addHandler("preURL", populateURL);
+  addHandler("passwdMaster", function(e) {
+    updatePassword();
+    if (e && e.charCode == 13)
+      sendPassword();
+  });
   addHandler("saveMasterLB", onSaveMasterLBChanged);
   addHandler("whereLeetLB", "onchange",
       function() { onWhereLeetLBChanged(); updatePassword(); });
@@ -124,11 +143,11 @@ function sendPassword() {
   window.close();
 }
 
-// Shows or hides the "settings" rows based on showSettings.
-function updateSettings() {
+// Shows the options rows.
+function showOptions() {
   var options = document.getElementsByClassName("options");
   for (var i = 0; i < options.length; ++i) {
-    options[i].style.display = showSettings ? 'table-row' : 'none';
+    options[i].style.display = 'table-row';
   }
 }
 
@@ -170,10 +189,4 @@ function updatePasswordVerify() {
        hashAlgorithm, result, "",
        whereToUseL33t, l33tLevel, length, charset, "", "");
   pwVerify.innerText = result.substr(0, length);
-}
-
-// Turns the Password Verifier on or off based on the checkbox status.
-function onPasswordVerifyToggle() {
-  updatePasswordVerify();
-  localStorage['enablePasswordVerify'] = this.checked;
 }

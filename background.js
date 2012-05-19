@@ -28,10 +28,6 @@ function openDialog(tab) {
   dialog.passwordMode = true;
 }
 
-chrome.browserAction.onClicked.addListener(function(tab) {
-  openDialog(tab);
-});
-
 chrome.storage.sync.get("settings", function(value) {
   document.cookie = value;
 });

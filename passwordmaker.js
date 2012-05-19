@@ -1067,6 +1067,8 @@ function in_array(needle, haystack, returnIndex) {
 	return false;
 }
 
+// CRX removed: we call init manually.
+/*
 if (addEventListener){
 	addEventListener('load', init, false);
 } else if (attachEvent){
@@ -1075,7 +1077,7 @@ if (addEventListener){
 	var otherOnLoadHandler=window.onload;
 	onload=init;
 }
-
+*/
 
 // scripts/md4.js
 
