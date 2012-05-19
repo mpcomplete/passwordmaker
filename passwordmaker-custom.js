@@ -33,8 +33,9 @@ function initCustom() {
   var accept = document.createElement('tr');
   accept.innerHTML =
       '<td>Fill in Password</td>' +
-      '<td><button onclick="sendPassword()">Accept</button></td>';
+      '<td><button id="sendPassword">Accept</button></td>';
   elemTable.insertBefore(accept, elemTable.firstChild);
+  document.getElementById('sendPassword').onclick = sendPassword;
 
   // Add a Password Verifier.
   var pwVerify = document.createElement('tr');
@@ -75,6 +76,7 @@ window.onload = function() {
   // For some reason the popup won't focus the master password immediately.
   // Wait 100ms instead.
   setTimeout(function() { passwdMaster.focus(); }, 100);
+  setTimeout(function() { passwdMaster.focus(); }, 500);
 }
 
 window.onunload = function() {

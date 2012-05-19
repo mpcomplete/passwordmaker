@@ -2,10 +2,6 @@
    "name": "PasswordMaker",
    "version": "0.2.0",
    "description": "Generates a unique password for every site from a single master password.",
-   "background": {
-     "scripts": ["background.js"],
-     "persistent": false
-   },
    "REMOVE.content_scripts": true,
    "content_scripts": [ {
       "js": [ "form-filler.js" ],
