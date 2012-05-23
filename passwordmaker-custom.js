@@ -5,17 +5,30 @@
 // Custom hacks to tweak the javascript edition of PasswordMaker to work as a
 // Chrome extension.
 
-// Open a port to the event page. When the page dies, the port will die,
-// letting the event page clean things up for us.
-var port = chrome.extension.connect();
-
 // Load saved settings before anything else.
-chrome.storage.sync.get({enablePasswordVerify: true}, function(storage) {
-  if (storage.cookie)
-    document.cookie = storage.cookie;
+chrome.storage.sync.get({enablePasswordVerify: true, cookies: []},
+    function(storage) {
+  for (var i in storage.cookies) {
+    document.cookie = storage.cookies[i];
+  }
   enablePasswordVerify = storage.enablePasswordVerify;
   initCustom();
 });
+
+function saveSettings() {
+  // Save the profile data (stored in document.cookie). We skip global and
+  // session prefs because those may contain the master password, and we don't
+  // want to sync that.
+  var cookies = document.cookie.split("; ");
+  var storage = {enablePasswordVerify: enablePasswordVerify, cookies: []};
+  for (var i in cookies) {
+    if (cookies[i].indexOf("globalPrefs=") != 0 &&
+        cookies[i].indexOf("sessionPrefs=") != 0) {
+      storage.cookies.push(cookies[i]);
+    }
+  }
+  chrome.storage.sync.set(storage);
+}
 
 function initCustom() {
   init();
@@ -56,7 +69,6 @@ function initCustom() {
       toggle.onchange = function() {
         enablePasswordVerify = toggle.checked;
         updatePasswordVerify();
-        port.postMessage({enablePasswordVerify: enablePasswordVerify});
       };
     }
   }
@@ -95,6 +107,10 @@ window.onload = function() {
   // Wait 100ms instead.
   setTimeout(function() { passwdMaster.focus(); }, 100);
   setTimeout(function() { passwdMaster.focus(); }, 500);
+}
+
+window.onunload = function() {
+  saveSettings();
 }
 
 // Sets up all the onchange event handlers for the form elements. This
@@ -145,7 +161,10 @@ function initChangeHandlers() {
     }
     saveGlobalPrefs();
   });
-  addHandler("saveProfileBtn", saveProfile);
+  addHandler("saveProfileBtn", function() {
+    saveProfile();
+    saveSettings();
+  });
   addHandler("loadProfileBtn", loadProfile);
   addHandler("deleteProfileBtn", deleteProfile);
 }
