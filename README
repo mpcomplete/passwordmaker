@@ -1,3 +1,14 @@
+This is an in-development version of the PasswordMaker Chrome extension
+available at
+https://chrome.google.com/webstore/detail/doblembglfahhpiilfhajboogopikhcm .
+
+Generates a unique password for every site from a single master password. Click
+the small gold ring icon in the toolbar when on a login page to open the
+dialog.
+
+Based on the extension from http://passwordmaker.org/.
+
+Files:
 passwordmaker.html is a modified version of the downloadable javascript version
 of PasswordMaker from http://passwordmaker.org/Javascript .  It gets loaded
 into a popup window when a user needs to type in his master password.
