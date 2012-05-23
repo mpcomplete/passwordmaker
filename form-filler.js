@@ -2,16 +2,9 @@
 // Use of this source code is governed by the LGPL that can be found in the
 // LICENSE file.
 
-var hasPasswordField = false;
-
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
   fillPasswords(msg.password);
 });
-
-function getPassword() {
-  chrome.extension.sendMessage({showDialog: true,
-                                hasPasswordField: hasPasswordField});
-}
 
 function fillPasswords(password) {
   forEachPasswordField(function(form) {
@@ -28,40 +21,4 @@ function forEachPasswordField(callback) {
       }
     }
   }
-}
-
-function findPasswordFields() {
-  forEachPasswordField(function(form) {hasPasswordField = true;});
-
-  if (hasPasswordField) {
-    chrome.extension.sendMessage({showPageAction: true});
-  }
-}
-
-function registerKeybind() {
-  // looking for alt+` which is 18, 192
-  var lastKeyDown = 0;
-  document.addEventListener(
-    'keydown',
-    function(e) {
-      if (lastKeyDown == 18 && e.keyCode == 192) {
-        e.stopPropagation();
-        e.preventDefault();
-        getPassword();
-      }
-      lastKeyDown = e.keyCode;
-      return false;
-    },
-    false
-  );
-  document.addEventListener(
-    'keyup',
-    function(e) { lastKeyDown = 0; },
-    false
-  );
-}
-
-if (window == top) {
-  registerKeybind();
-  findPasswordFields();
 }

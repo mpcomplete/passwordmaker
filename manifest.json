@@ -11,7 +11,7 @@
      "default_title": "PasswordMaker",
      "default_popup": "passwordmaker.html?options=false"
    },
-   "permissions": [ "experimental", "tabs", "storage", "keybinding", "<all_urls>" ],
+   "permissions": [ "tabs", "storage", "keybinding", "<all_urls>" ],
    "options_page": "passwordmaker.html?options=true",
    "commands": {
      "_execute_browser_action": {
