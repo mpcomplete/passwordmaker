@@ -10,7 +10,7 @@
 var port = chrome.extension.connect();
 
 // Load saved settings before anything else.
-chrome.storage.sync.get(null, function(storage) {
+chrome.storage.sync.get({enablePasswordVerify: true}, function(storage) {
   if (storage.cookie)
     document.cookie = storage.cookie;
   enablePasswordVerify = storage.enablePasswordVerify;

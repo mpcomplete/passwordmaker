@@ -5,6 +5,6 @@ into a popup window when a user needs to type in his master password.
 passwordmaker-custom.js contains all the custom modifications that were needed
 to make passwordmaker.html work as a Chrome extension.
 
-favicon.ico is the favicon from the PasswordMaker site.
+icon*.png are derived from the favicon from the PasswordMaker site.
 
 The rest are standard extension bits.
