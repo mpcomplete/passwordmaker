@@ -5,6 +5,10 @@
 // Custom hacks to tweak the javascript edition of PasswordMaker to work as a
 // Chrome extension.
 
+// Open a port to the event page. When the page dies, the port will die,
+// letting the event page clean things up for us.
+var port = chrome.extension.connect();
+
 // Load saved settings before anything else.
 chrome.storage.sync.get(null, function(storage) {
   if (storage.cookie)
@@ -25,43 +29,58 @@ function initCustom() {
     }
   });
 
+  var isOptions = location.search.indexOf("options=true") >= 0;
+
   var elemTable = document.getElementsByTagName('table')[0];
   elemTable = elemTable.getElementsByTagName('tbody')[0];
 
-  // Add a button to actually send the password to the page.
-  var accept = document.createElement('tr');
-  accept.innerHTML =
-      '<td>Fill in Password</td>' +
-      '<td><button id="sendPassword">Accept</button></td>';
-  elemTable.insertBefore(accept, elemTable.firstChild);
-  document.getElementById('sendPassword').onclick = sendPassword;
+  // Add a Password Verifier, if it's enabled.
+  if (isOptions || enablePasswordVerify) {
+    var pwVerify = document.createElement('tr');
+    pwVerify.innerHTML =
+        '<td>' +
+        (isOptions ?
+            '<input type="checkbox" id="passwordVerifyToggle"/>' : '') +
+        '<label for="passwordVerifyToggle">Manual Password Verifier</label>' +
+        '</td><td><div id="passwordVerify"></div></td>';
+    pwVerify.title =
+        'A 3 letter code that will always be the same for a given master' +
+        ' password and settings. Use this to quickly check that you typed' +
+        ' your password correctly.';
+    var saveMaster = document.getElementById('saveMasterLB');
+    saveMaster = saveMaster.parentNode.parentNode;
+    elemTable.insertBefore(pwVerify, saveMaster);
+    var toggle = document.getElementById('passwordVerifyToggle');
+    if (toggle) {
+      toggle.checked = !!enablePasswordVerify;
+      toggle.onchange = function() {
+        enablePasswordVerify = toggle.checked;
+        updatePasswordVerify();
+        port.postMessage({enablePasswordVerify: enablePasswordVerify});
+      };
+    }
+  }
 
-  // Add a Password Verifier.
-  var pwVerify = document.createElement('tr');
-  pwVerify.innerHTML =
-      '<td><input type="checkbox" id="passwordVerifyToggle"/><label' +
-      ' for="passwordVerifyToggle">Manual Password Verifier</label></td>' +
-      '<td><div id="passwordVerify"></div></td>';
-  pwVerify.title =
-      'A 3 letter code that will always be the same for a given master' +
-      ' password. Use this to quickly check that you typed your password' +
-      ' correctly.';
-  var saveMaster = document.getElementById('saveMasterLB');
-  saveMaster = saveMaster.parentNode.parentNode;
-  elemTable.insertBefore(pwVerify, saveMaster);
-  var toggle = document.getElementById('passwordVerifyToggle');
-  toggle.checked = !!enablePasswordVerify;
-  toggle.onchange = function() {
-    updatePasswordVerify();
-    enablePasswordVerify = toggle.checked;
-  };
-
-  var isOptions = location.search.indexOf("options=true") >= 0;
   if (isOptions) {
-    // Options mode: hide password fill stuff.
-    accept.style.display = 'none';
-    elemTable.childNodes[3].style.display = 'none';  // input URL
     showOptions();
+  } else {
+    // Add a button to actually send the password to the page.
+    var accept = document.createElement('tr');
+    accept.innerHTML =
+        '<td>Fill in Password</td>' +
+        '<td><button id="sendPassword">Accept</button></td>';
+    elemTable.insertBefore(accept, elemTable.firstChild);
+    document.getElementById('sendPassword').onclick = sendPassword;
+
+    // Add a link to the options page at the top right.
+    var options = document.createElement('tr');
+    options.innerHTML =
+       '<td colspan="2" style="text-align: right;">' +
+       '<button id="editOptions">Edit Settings</button></td>';
+    elemTable.appendChild(options);
+    document.getElementById('editOptions').onclick = function() {
+      window.open('passwordmaker.html?options=true', 'passwordmaker.options');
+    };
   }
 
   updatePasswordVerify();
@@ -76,13 +95,6 @@ window.onload = function() {
   // Wait 100ms instead.
   setTimeout(function() { passwdMaster.focus(); }, 100);
   setTimeout(function() { passwdMaster.focus(); }, 500);
-}
-
-window.onunload = function() {
-  chrome.storage.sync.set({
-    "cookie": document.cookie,
-    "enablePasswordVerify": enablePasswordVerify
-  });
 }
 
 // Sets up all the onchange event handlers for the form elements. This
@@ -166,8 +178,9 @@ function updatePassword() {
 function updatePasswordVerify() {
   var toggle = document.getElementById('passwordVerifyToggle');
   var pwVerify = document.getElementById('passwordVerify');
-  if (!toggle.checked) {
-    pwVerify.innerText = "";
+  if (!enablePasswordVerify) {
+    if (pwVerify)
+      pwVerify.innerText = "";
     return;
   }
 
