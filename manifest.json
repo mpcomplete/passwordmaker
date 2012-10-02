@@ -1,6 +1,6 @@
 {
    "name": "PasswordMaker (dev)",
-   "version": "0.2.0",
+   "version": "0.2.1",
    "description": "Generates a unique password for every site from a single master password.",
    "homepage_url": "https://github.com/mpcomplete/passwordmaker",
    "browser_action": {
