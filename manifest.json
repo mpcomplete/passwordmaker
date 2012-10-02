@@ -13,11 +13,11 @@
      "48": "icon48.png",
      "128": "icon128.png"
    },
-   "permissions": [ "tabs", "storage", "keybinding", "<all_urls>" ],
+   "permissions": [ "tabs", "storage", "commands", "<all_urls>" ],
    "options_page": "passwordmaker.html?options=true",
    "commands": {
      "_execute_browser_action": {
-       "suggested_key": { "default": "Alt+Shift+Q" }
+       "suggested_key": { "default": "Alt+Shift+Z" }
      }
    },
    "manifest_version": 2
