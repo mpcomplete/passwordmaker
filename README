@@ -1,7 +1,3 @@
-This is an in-development version of the PasswordMaker Chrome extension
-available at
-https://chrome.google.com/webstore/detail/doblembglfahhpiilfhajboogopikhcm .
-
 Generates a unique password for every site from a single master password. Click
 the small gold ring icon in the toolbar when on a login page to open the
 dialog.
