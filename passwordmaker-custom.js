@@ -33,13 +33,8 @@ function saveSettings() {
 
 function insertTabURL() {
   // Get the site's URL and fill in the input field.
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    if (tabs && tabs[0]) {
-      window.contentTab = tabs[0];
-      preUrl.value = window.contentTab ? window.contentTab.url : '';
-      populateURL();
-    }
-  });
+  preUrl.value = window.contentTab ? window.contentTab.url : '';
+  populateURL();
 }
 
 // wrap loadProfile() and insertTabURL if none given in profile
@@ -55,10 +50,15 @@ var loadProfile = function loadProfile() {
 
 function initCustom() {
   init();
-
-  insertTabURL();
+  
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs && tabs[0]) {
+      window.contentTab = tabs[0];
+    }
+  });
   
   var isOptions = location.search.indexOf("options=true") >= 0;
+  if (!isOptions) insertTabURL();
 
   var elemTable = document.getElementsByTagName('table')[0];
   elemTable = elemTable.getElementsByTagName('tbody')[0];
