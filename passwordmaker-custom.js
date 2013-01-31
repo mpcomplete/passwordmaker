@@ -33,8 +33,13 @@ function saveSettings() {
 
 function insertTabURL() {
   // Get the site's URL and fill in the input field.
-  preUrl.value = window.contentTab ? window.contentTab.url : '';
-  populateURL();
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs && tabs[0]) {
+      window.contentTab = tabs[0];
+      preUrl.value = window.contentTab ? window.contentTab.url : '';
+      populateURL();
+    }
+  });
 }
 
 // wrap loadProfile() and insertTabURL if none given in profile
