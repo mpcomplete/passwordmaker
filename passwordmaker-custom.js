@@ -1,4 +1,5 @@
 // Copyright (c) 2009 Matt Perry. All rights reserved.
+//               2013 Chris Juelg: minor user experience changes
 // Use of this source code is governed by the LGPL that can be found in the
 // LICENSE file.
 
@@ -30,9 +31,7 @@ function saveSettings() {
   chrome.storage.sync.set(storage);
 }
 
-function initCustom() {
-  init();
-
+function insertTabURL() {
   // Get the site's URL and fill in the input field.
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (tabs && tabs[0]) {
@@ -41,7 +40,22 @@ function initCustom() {
       populateURL();
     }
   });
+}
 
+// wrap loadProfile() and insertTabURL if none given in profile
+var alias_loadProfile = loadProfile;
+
+var loadProfile = function loadProfile() {  
+  alias_loadProfile();
+  
+  if (preUrl.value == undefined || preUrl.value == "") insertTabURL();
+}
+
+function initCustom() {
+  init();
+
+  insertTabURL();
+  
   var isOptions = location.search.indexOf("options=true") >= 0;
 
   var elemTable = document.getElementsByTagName('table')[0];
