@@ -199,6 +199,11 @@ function showOptions() {
   for (var i = 0; i < options.length; ++i) {
     options[i].style.display = 'table-row';
   }
+
+  var activateEdits = document.getElementsByClassName("activateEdit");
+  for (var i = 0; i < activateEdits.length; ++i) {
+    activateEdits[i].style.display = 'inline';
+  }
 }
 
 // Regenerates the password and verifier code.

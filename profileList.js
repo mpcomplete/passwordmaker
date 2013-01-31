@@ -1,6 +1,6 @@
 /*
 profileLB = new Bs_Dropdown();
-        profileLB.imgDir = 'scripts/blueShoes/components/dropdown/img/win2k/';
+profileLB.imgDir = 'scripts/blueShoes/components/dropdown/img/win2k/';
 profileLB.setValue('Default');
 profileLB.drawInto('profileLB');
 profileLB.attachEvent('onChange', loadProfile);
