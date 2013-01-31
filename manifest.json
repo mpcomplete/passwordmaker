@@ -1,6 +1,6 @@
 {
    "name": "PasswordMaker",
-   "version": "0.2.3",
+   "version": "0.2.4",
    "description": "Generates a unique password for every site from a single master password.",
    "browser_action": {
      "default_icon": "icon16.png",
