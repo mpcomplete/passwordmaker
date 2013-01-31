@@ -48,7 +48,9 @@ var alias_loadProfile = loadProfile;
 var loadProfile = function loadProfile() {  
   alias_loadProfile();
   
-  if (preUrl.value == undefined || preUrl.value == "") insertTabURL();
+// don't insert if isOptions or defined in profile
+  var isOptions = location.search.indexOf("options=true") >= 0;
+  if (!isOptions && (preUrl.value == undefined || preUrl.value == "")) insertTabURL();
 }
 
 function initCustom() {
