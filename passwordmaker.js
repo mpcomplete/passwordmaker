@@ -649,8 +649,8 @@ function init() {
     preGeneratePassword();
   }
   populateURL(); // in case passwdUrl.value is using document.location instead of cookie value, this calculates the correct URL
-	passwdMaster.focus();
-	initDone = true;
+  passwdMaster.focus();
+  initDone = true;
 }
 
 // Loads a certain profile.
